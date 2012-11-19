@@ -43,62 +43,62 @@ Introductory example
 
  Provided the following functions:
 
-    ```cpp
-    int f(int x)
-    {
-        return x +1;
-    }
+```cpp
+int f(int x)
+{
+    return x +1;
+}
 
-    int g(int x)
-    {
-        return x * 1;
-    }
+int g(int x)
+{
+    return x * 1;
+}
 
-    int h(int x)
-    {
-        return x - 2;
-    }
+int h(int x)
+{
+    return x - 2;
+}
     ```
 
 One can use compose to create a composed functor as this:
 
-    ```cpp
-    auto r = compose(&f, &g, &h);
+```cpp
+auto r = compose(&f, &g, &h);
 
-    int v = r(3); // equivalent to (h(g(f(3)));
-    ```
+int v = r(3); // equivalent to (h(g(f(3)));
+```
 
 Compose can be used with functors as well:
 
-    ```cpp
-    struct f
+```cpp
+struct f
+{
+    int operator()(int x) const
     {
-        int operator()(int x) const
-        {
-            return x + 1;
-        }
-    };
+        return x + 1;
+    }
+};
 
-    struct g
+struct g
+{
+    int operator()(int x) const
     {
-        int operator()(int x) const
-        {
-            return x * 1;
-        }
-    };
+        return x * 1;
+    }
+};
 
-    struct h
+struct h
+{
+    int operator()(int x) const
     {
-        int operator()(int x) const
-        {
-            return x - 2;
-        }
-    };
+        return x - 2;
+    }
+};
 
-    auto r = compose(f(), g(), h());
+auto r = compose(f(), g(), h());
 
-    int v = r(3); // equivalent to (h(g(f(3)));
-    ```
+int v = r(3); // equivalent to (h(g(f(3)));
+```
 
 Usage
 -----
@@ -109,57 +109,57 @@ Compose builds a composed functor out of the provided parameters. One can indiff
 
 Compose also support tuples and random access Boost.Fusion containers. However, full move semantics support is currently unavailable through this interface. Example:
 
-    ```cpp
-    // valid only if f, g and h are copyable.
-    auto r = compose(std::forward_tuple(f(), g(), h())); 
-    int v = r(3);
-    ```
+```cpp
+// valid only if f, g and h are copyable.
+auto r = compose(std::forward_tuple(f(), g(), h())); 
+int v = r(3);
+```
 
 Composed functions need to have compatible return types, either directly or via implicit construction.  For example, this is valid:
 
-    ```cpp
-    struct f
+```cpp
+struct f
+{
+    double operator()(int x) const
     {
-        double operator()(int x) const
-        {
-            return static_cast<double>(x) * 1.3;
-        };
+        return static_cast<double>(x) * 1.3;
     };
+};
 
-    struct g
+struct g
+{
+    int operator()(double x) const
     {
-        int operator()(double x) const
-        {
-            return static_cast<int>(x) << 1;
-        }
+        return static_cast<int>(x) << 1;
+    }
 
-    };
+};
 
-    auto r = compose(f(), g());
-    ```
+auto r = compose(f(), g());
+```
 
 And this is not :
 
-    ```cpp
-    struct f
+```cpp
+struct f
+{
+    std::string operator()(char c) const
     {
-        std::string operator()(char c) const
-        {
-            return std::string(10, c);
-        }
-    };
+        return std::string(10, c);
+    }
+};
 
-    struct g
+struct g
+{
+    int operator()(int x) const
     {
-        int operator()(int x) const
-        {
-            return x + 1;
-        }
-    };
+        return x + 1;
+    }
+};
 
-    // cannot compile, f outputs a std::string and g takes an int
-    auto r = compose(f(), g());
-    ```
+// cannot compile, f outputs a std::string and g takes an int
+auto r = compose(f(), g());
+```
 
 Performance
 -----------
