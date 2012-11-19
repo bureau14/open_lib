@@ -82,12 +82,12 @@
 namespace wrpme
 {
 
-	template <typename Inner, typename Outer>
-	class composed 
-	{
+    template <typename Inner, typename Outer>
+    class composed 
+    {
 
-	public:
-		explicit composed(Inner && inner = Inner(), Outer && outer = Outer()) : _inner(std::forward<Inner>(inner)), _outer(std::forward<Outer>(outer)) {}
+    public:
+        explicit composed(Inner && inner = Inner(), Outer && outer = Outer()) : _inner(std::forward<Inner>(inner)), _outer(std::forward<Outer>(outer)) {}
 
         // since we define move semantics, we have to define a copy constructor as well
         // note that we define a copy constructor because we don't have yet perfect forwarding with Boost.Fusion
@@ -106,89 +106,89 @@ namespace wrpme
             return *this;
         }
 
-	public:
+    public:
         // VC10 crashes when it attempts to compile this method, you need at least VC11
         // don't mock VC, gcc crashes much more often (Clang <3)
         template <typename T>
         auto operator()(T && x) -> decltype(Outer()(Inner()(x)))
-		{
-			return _outer(_inner(std::forward<T>(x)));
-		}
+        {
+            return _outer(_inner(std::forward<T>(x)));
+        }
 
-	private:
-		Inner _inner;
-		Outer _outer;
-	};
+    private:
+        Inner _inner;
+        Outer _outer;
+    };
 
-	template <typename Types>
-	struct make_composed
-	{
-		// the size must be at least 2 or it will not compile
-		typedef Types types;
+    template <typename Types>
+    struct make_composed
+    {
+        // the size must be at least 2 or it will not compile
+        typedef Types types;
 
-		// we need first and second element
-		typedef typename boost::mpl::at<types, boost::mpl::int_<0>>::type first_type;
-		typedef typename boost::mpl::at<types, boost::mpl::int_<1>>::type second_type;
-		typedef typename boost::mpl::back<types>::type back_type;
+        // we need first and second element
+        typedef typename boost::mpl::at<types, boost::mpl::int_<0>>::type first_type;
+        typedef typename boost::mpl::at<types, boost::mpl::int_<1>>::type second_type;
+        typedef typename boost::mpl::back<types>::type back_type;
 
-		// we need the subset without the first and second element
-		typedef typename boost::mpl::pop_front<typename boost::mpl::pop_front<types>::type>::type types_tail;
+        // we need the subset without the first and second element
+        typedef typename boost::mpl::pop_front<typename boost::mpl::pop_front<types>::type>::type types_tail;
 
-		typedef typename boost::mpl::fold<types_tail, 
-			composed<first_type, second_type>, 
-			composed<boost::mpl::_1, boost::mpl::_2>>::type type;
-	};
+        typedef typename boost::mpl::fold<types_tail, 
+            composed<first_type, second_type>, 
+            composed<boost::mpl::_1, boost::mpl::_2>>::type type;
+    };
 
-	template <typename Vector, int Size>
-	struct make_from_vector : make_composed<Vector>
-	{
+    template <typename Vector, int Size>
+    struct make_from_vector : make_composed<Vector>
+    {
         typedef typename make_composed<Vector>::type type;
         typedef typename make_composed<Vector>::back_type back_type;
 
         // Boost.Fusion doesn't support rvalue references fully yet so perfect forwarding will not work through this interface
-		type operator()(Vector && v) const
-		{
+        type operator()(Vector && v) const
+        {
             static_assert(Size > 1, "need at least 2 functions to make a composition");
-			typedef typename boost::fusion::result_of::as_vector<typename boost::fusion::result_of::pop_back<Vector>::type>::type head_vector;
+            typedef typename boost::fusion::result_of::as_vector<typename boost::fusion::result_of::pop_back<Vector>::type>::type head_vector;
             back_type && back = std::forward<back_type>(boost::fusion::back(v));
-			return type(make_from_vector<head_vector, head_vector::size::value>()(boost::fusion::pop_back(std::forward<Vector>(v))), std::move(back));
-		}
-	};
+            return type(make_from_vector<head_vector, head_vector::size::value>()(boost::fusion::pop_back(std::forward<Vector>(v))), std::move(back));
+        }
+    };
 
-	// recursion termination
-	template <typename Vector>
-	struct make_from_vector<Vector, 2> : make_composed<Vector>
-	{
+    // recursion termination
+    template <typename Vector>
+    struct make_from_vector<Vector, 2> : make_composed<Vector>
+    {
         typedef typename make_composed<Vector>::type type;
         typedef typename make_composed<Vector>::first_type first_type;
         typedef typename make_composed<Vector>::second_type second_type;
 
-		type operator()(Vector && v) const
-		{
+        type operator()(Vector && v) const
+        {
             // we do our best to support move semantics
             return type( std::forward<first_type>(boost::fusion::at<boost::mpl::int_<0>>(v)), 
                         std::forward<second_type>(boost::fusion::at<boost::mpl::int_<1>>(v)));
-		}
-	};
+        }
+    };
 
-	// composes from a tuple of pointers to functors (or any multi type container)
+    // composes from a tuple of pointers to functors (or any multi type container)
     // note that Boost.Fusion rvalues references support being incomplete, perfect forwarding will fail through
     // this interface
-	template <typename Container>
-	typename make_composed<typename boost::fusion::result_of::as_vector<Container>::type>::type compose(Container && c)
-	{
-		// convert the tuple to a Boost.Fusion vector, as_vector will break perfect forwarding
-		typedef typename boost::fusion::result_of::as_vector<Container>::type vector_type;
-		return make_from_vector<vector_type, vector_type::size::value>()(boost::fusion::as_vector(std::forward<Container>(c)));
-	}
+    template <typename Container>
+    typename make_composed<typename boost::fusion::result_of::as_vector<Container>::type>::type compose(Container && c)
+    {
+        // convert the tuple to a Boost.Fusion vector, as_vector will break perfect forwarding
+        typedef typename boost::fusion::result_of::as_vector<Container>::type vector_type;
+        return make_from_vector<vector_type, vector_type::size::value>()(boost::fusion::as_vector(std::forward<Container>(c)));
+    }
 
-	// compose from two functions 
-	// this helper function is the recursion termination
-	template <typename Function1, typename Function2>
-	composed<Function1, Function2> compose(Function1 && f1, Function2 && f2)
-	{
-		return composed<Function1, Function2>(std::forward<Function1>(f1), std::forward<Function2>(f2));
-	}	
+    // compose from two functions 
+    // this helper function is the recursion termination
+    template <typename Function1, typename Function2>
+    composed<Function1, Function2> compose(Function1 && f1, Function2 && f2)
+    {
+        return composed<Function1, Function2>(std::forward<Function1>(f1), std::forward<Function2>(f2));
+    }    
 
 // without variadic templates we can abuse the C++ preprocessor for the same effect
 // (actually for a better effect as we will preserve perfect forwarding easily)
@@ -198,13 +198,13 @@ namespace wrpme
 #define WRPME_DETAIL_FORWARD_SINGLE_COMMA(z, n, _) ,WRPME_DETAIL_FORWARD_SINGLE(n) 
 
 #define WRPME_DETAIL_COMPOSE_FUNCTION(z, n, _) \
-	template<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), typename Function)> \
-	typename make_composed<typename boost::mpl::vector<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), Function)> >::type \
-	compose(BOOST_PP_ENUM_BINARY_PARAMS_Z(z, BOOST_PP_INC(n), Function, && f)) \
-	{ \
+    template<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), typename Function)> \
+    typename make_composed<typename boost::mpl::vector<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), Function)> >::type \
+    compose(BOOST_PP_ENUM_BINARY_PARAMS_Z(z, BOOST_PP_INC(n), Function, && f)) \
+    { \
     return compose(compose(WRPME_DETAIL_FORWARD_SINGLE(0) BOOST_PP_REPEAT_FROM_TO(1, n, WRPME_DETAIL_FORWARD_SINGLE_COMMA, nil)), \
                    WRPME_DETAIL_FORWARD_SINGLE(n)); \
-	}
+    }
 
 // If you need more than BOOST_MPL_LIMIT_VECTOR_SIZE parameters you and I should have a serious conversation
 // by default BOOST_MPL_LIMIT_VECTOR_SIZE is 20...
