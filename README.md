@@ -1,7 +1,7 @@
 Bureau 14 Open Sources Libraries
 ==================================
 
-Open source libraries by Bureau 14.
+Open source libraries by [Bureau 14](http://www.bureau14.fr).
 
 License
 -------
@@ -28,21 +28,22 @@ Compose is used to compose an arbitrary number of functions or functors into a s
 Requirements
 ------------
 
-This library is header-only and written in [C++11][http://en.wikipedia.org/wiki/C%2B%2B11]. It uses the following C++11 features:
+This library is header-only and written in [C++11](http://en.wikipedia.org/wiki/C%2B%2B11). It uses the following C++11 features:
 
-    * [Rvalue references][http://en.wikipedia.org/wiki/Rvalue_references#Rvalue_references_and_move_constructors]
-    * [Decltype][http://en.wikipedia.org/wiki/Decltype]
-    * [Static assertions][http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions]
+    * [Rvalue references](http://en.wikipedia.org/wiki/Rvalue_references#Rvalue_references_and_move_constructors)
+    * [Decltype](http://en.wikipedia.org/wiki/Decltype)
+    * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
 
-It makes intensive usage of the Boost libraries, especially [Boost.MPL][http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html] and [Boost.Fusion][http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/].
+It makes intensive usage of the Boost libraries, especially [Boost.MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html) and [Boost.Fusion(http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/).
 
-It has been tested against [MSVC][http://msdn.microsoft.com/fr-fr/vstudio/hh388567.aspx] 11, [clang][http://clang.llvm.org/] 3.1 and [gcc][http://gcc.gnu.org/] 4.6.
+It has been tested against [MSVC](http://msdn.microsoft.com/fr-fr/vstudio/hh388567.aspx) 11, [clang](http://clang.llvm.org/) 3.1 and [gcc](http://gcc.gnu.org/) 4.6.
 
 Introductory example
 --------------------
 
  Provided the following functions:
 
+    ```c++
     int f(int x)
     {
         return x +1;
@@ -57,15 +58,19 @@ Introductory example
     {
         return x - 2;
     }
+    ```
 
 One can use compose to create a composed functor as this:
 
+    ```c++
     auto r = compose(&f, &g, &h);
 
     int v = r(3); // equivalent to (h(g(f(3)));
+    ```
 
 Compose can be used with functors as well:
 
+    ```c++
     struct f
     {
         int operator()(int x) const
@@ -93,22 +98,26 @@ Compose can be used with functors as well:
     auto r = compose(f(), g(), h());
 
     int v = r(3); // equivalent to (h(g(f(3)));
+    ```
 
 Usage
 -----
 
-Compose is header-only. The boost [MPL][http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html], [Fusion][http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/] and [Preprocessor][http://www.boost.org/doc/libs/1_52_0/libs/preprocessor/doc/index.html] libraries are also required, these libraries being header-only as well Compose does not impose any new linking dependencies.
+Compose is header-only. The boost [MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html), [Fusion](http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/) and [Preprocessor](http://www.boost.org/doc/libs/1_52_0/libs/preprocessor/doc/index.html) libraries are also required, these libraries being header-only as well Compose does not impose any new linking dependencies.
 
 Compose builds a composed functor out of the provided parameters. One can indifferently mix pointer to functions and functors. Thanks to its full rvalue reference support, it is possible to use non copyable functors provided that they offer move semantics.
 
 Compose also support tuples and random access Boost.Fusion containers. However, full move semantics support is currently unavailable through this interface. Example:
 
+    ```c++
     // valid only if f, g and h are copyable.
     auto r = compose(std::forward_tuple(f(), g(), h())); 
     int v = r(3);
+    ```
 
 Composed functions need to have compatible return types, either directly or via implicit construction.  For example, this is valid:
 
+    ```c++
     struct f
     {
         double operator()(int x) const
@@ -127,10 +136,11 @@ Composed functions need to have compatible return types, either directly or via 
     };
 
     auto r = compose(f(), g());
-
+    ```
 
 And this is not :
 
+    ```c++
     struct f
     {
         std::string operator()(char c) const
@@ -149,6 +159,7 @@ And this is not :
 
     // cannot compile, f outputs a std::string and g takes an int
     auto r = compose(f(), g());
+    ```
 
 Performance
 -----------
