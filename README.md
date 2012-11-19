@@ -10,9 +10,9 @@ Copyright (c) 2012, Bureau 14 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-   * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-   * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-   * Neither the name of Bureau 14 nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Neither the name of Bureau 14 nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL BUREAU 14 BE LIABLE FOR ANY
 DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -28,11 +28,11 @@ Compose is used to compose an arbitrary number of functions or functors into a s
 Requirements
 ------------
 
-This library is header-only and written in [C++11](http://en.wikipedia.org/wiki/C%2B%2B11). It uses the following C++11 features:
+This library is header-only and written in [cpp11](http://en.wikipedia.org/wiki/C%2B%2B11). It uses the following cpp11 features:
 
-    * [Rvalue references](http://en.wikipedia.org/wiki/Rvalue_references#Rvalue_references_and_move_constructors)
-    * [Decltype](http://en.wikipedia.org/wiki/Decltype)
-    * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
+ * [Rvalue references](http://en.wikipedia.org/wiki/Rvalue_references#Rvalue_references_and_move_constructors)
+ * [Decltype](http://en.wikipedia.org/wiki/Decltype)
+ * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
 
 It makes intensive usage of the Boost libraries, especially [Boost.MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html) and [Boost.Fusion(http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/).
 
@@ -43,7 +43,7 @@ Introductory example
 
  Provided the following functions:
 
-    ```c++
+    ```cpp
     int f(int x)
     {
         return x +1;
@@ -62,7 +62,7 @@ Introductory example
 
 One can use compose to create a composed functor as this:
 
-    ```c++
+    ```cpp
     auto r = compose(&f, &g, &h);
 
     int v = r(3); // equivalent to (h(g(f(3)));
@@ -70,7 +70,7 @@ One can use compose to create a composed functor as this:
 
 Compose can be used with functors as well:
 
-    ```c++
+    ```cpp
     struct f
     {
         int operator()(int x) const
@@ -109,7 +109,7 @@ Compose builds a composed functor out of the provided parameters. One can indiff
 
 Compose also support tuples and random access Boost.Fusion containers. However, full move semantics support is currently unavailable through this interface. Example:
 
-    ```c++
+    ```cpp
     // valid only if f, g and h are copyable.
     auto r = compose(std::forward_tuple(f(), g(), h())); 
     int v = r(3);
@@ -117,7 +117,7 @@ Compose also support tuples and random access Boost.Fusion containers. However, 
 
 Composed functions need to have compatible return types, either directly or via implicit construction.  For example, this is valid:
 
-    ```c++
+    ```cpp
     struct f
     {
         double operator()(int x) const
@@ -140,7 +140,7 @@ Composed functions need to have compatible return types, either directly or via 
 
 And this is not :
 
-    ```c++
+    ```cpp
     struct f
     {
         std::string operator()(char c) const
