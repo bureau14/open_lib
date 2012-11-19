@@ -34,7 +34,7 @@ This library is header-only and written in [cpp11](http://en.wikipedia.org/wiki/
  * [Decltype](http://en.wikipedia.org/wiki/Decltype)
  * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
 
-It makes intensive usage of the Boost libraries, especially [Boost.MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html) and [Boost.Fusion(http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/).
+It makes intensive usage of the Boost libraries, especially [Boost.MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html) and [Boost.Fusion](http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/).
 
 It has been tested against [MSVC](http://msdn.microsoft.com/fr-fr/vstudio/hh388567.aspx) 11, [clang](http://clang.llvm.org/) 3.1 and [gcc](http://gcc.gnu.org/) 4.6.
 
@@ -46,7 +46,7 @@ Introductory example
 ```cpp
 int f(int x)
 {
-    return x +1;
+    return x + 1;
 }
 
 int g(int x)
@@ -58,7 +58,7 @@ int h(int x)
 {
     return x - 2;
 }
-    ```
+```
 
 One can use compose to create a composed functor as this:
 
