@@ -31,7 +31,6 @@ Requirements
 This library is header-only and written in [cpp11](http://en.wikipedia.org/wiki/C%2B%2B11). It uses the following cpp11 features:
 
  * [Rvalue references](http://en.wikipedia.org/wiki/Rvalue_references#Rvalue_references_and_move_constructors)
- * [Decltype](http://en.wikipedia.org/wiki/Decltype)
  * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
 
 It makes intensive usage of the Boost libraries, especially [Boost.MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html) and [Boost.Fusion](http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/).
@@ -103,7 +102,7 @@ int v = r(3); // equivalent to (h(g(f(3)));
 Usage
 -----
 
-Compose is header-only. The boost [MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html), [Fusion](http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/) and [Preprocessor](http://www.boost.org/doc/libs/1_52_0/libs/preprocessor/doc/index.html) libraries are also required, these libraries being header-only as well Compose does not impose any new linking dependencies.
+Compose is header-only. The boost [MPL](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/index.html), [Fusion](http://www.boost.org/doc/libs/1_52_0/libs/fusion/doc/html/), [Preprocessor](http://www.boost.org/doc/libs/1_52_0/libs/preprocessor/doc/index.html) and [Utility](http://www.boost.org/doc/libs/1_52_0/libs/utility/utility.htm) libraries are also required. These libraries being header-only, Compose does not impose any new linking dependencies.
 
 Compose builds a composed functor out of the provided parameters. One can indifferently mix pointer to functions and functors. Thanks to its full rvalue reference support, it is possible to use non copyable functors provided that they offer move semantics.
 
@@ -123,7 +122,7 @@ struct f
     double operator()(int x) const
     {
         return static_cast<double>(x) * 1.3;
-    };
+    }
 };
 
 struct g
@@ -132,7 +131,6 @@ struct g
     {
         return static_cast<int>(x) << 1;
     }
-
 };
 
 auto r = compose(f(), g());
@@ -169,5 +167,5 @@ There is no performance penalty when functions/functors can be inlined.
 Limitations
 -----------
 
-This library only supports composition up to BOOST_MPL_LIMIT_VECTOR_SIZE (currently set to 20) functions. Rvalue references are not fully supported via the container interface. Standard tuples support requires variadic templates support by the compiler. Boost tuples don't suffer this limitation.
+This library only supports composition up to [BOOST_MPL_LIMIT_VECTOR_SIZE](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/refmanual/limit-vector-size.html) functions. Rvalue references are not fully supported via the container interface. Standard tuples support requires variadic templates support by the compiler. Boost tuples don't suffer this limitation.
 

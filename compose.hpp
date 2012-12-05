@@ -32,6 +32,10 @@
 
 // History
 //
+// EA - Switched to boost::result_of, although less elaguant it seems decltype
+//      puts too much stress on the template resolution engine and most compilers
+//      eventually fail at some complexity level. Also added an overloaded const
+//      operator to preserve constness if needed.
 // EA - Original open source version with rvalue references support 
 //      Tested with Boost 1.52.0, gcc 4.6.1, Clang 3.1 and VC11
 //      around 200 lines of extreme terror
@@ -68,6 +72,8 @@
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/include/mpl.hpp>
 
+#include <boost/utility/result_of.hpp>
+
 #ifndef BOOST_NO_VARIADIC_TEMPLATES
 // Fusion needs variadic templates for Tuples support
 #include <boost/fusion/adapted/std_tuple.hpp>
@@ -85,9 +91,12 @@ namespace wrpme
     template <typename Inner, typename Outer>
     class composed 
     {
+    public:
+        typedef Inner inner_type;        
+        typedef Outer outer_type;
 
     public:
-        explicit composed(Inner && inner = Inner(), Outer && outer = Outer()) : _inner(std::forward<Inner>(inner)), _outer(std::forward<Outer>(outer)) {}
+        explicit composed(inner_type && inner = Inner(), outer_type && outer = Outer()) : _inner(std::forward<inner_type>(inner)), _outer(std::forward<outer_type>(outer)) {}
 
         // since we define move semantics, we have to define a copy constructor as well
         // note that we define a copy constructor because we don't have yet perfect forwarding with Boost.Fusion
@@ -107,17 +116,29 @@ namespace wrpme
         }
 
     public:
-        // VC10 crashes when it attempts to compile this method, you need at least VC11
-        // don't mock VC, gcc crashes much more often (Clang <3)
+
+        // this kind of declaration
+        //
+        // template <typename T>
+        // auto operator()(T && x) -> decltype(_outer(_inner(std::forward<T>(x)))) { ... }
+        //
+        // seems to confuse all compilers at some point, we use the more cumbersome result_of syntax at no cost for the user
         template <typename T>
-        auto operator()(T && x) -> decltype(Outer()(Inner()(x)))
+        typename boost::result_of<outer_type (typename boost::result_of<inner_type(T)>::type)>::type operator()(T && x)
+        {
+            return _outer(_inner(std::forward<T>(x)));
+        }
+
+        // const version
+        template <typename T>
+        typename boost::result_of<outer_type (typename boost::result_of<inner_type(T)>::type)>::type operator()(T && x) const
         {
             return _outer(_inner(std::forward<T>(x)));
         }
 
     private:
-        Inner _inner;
-        Outer _outer;
+        inner_type _inner;
+        outer_type _outer;
     };
 
     template <typename Types>
