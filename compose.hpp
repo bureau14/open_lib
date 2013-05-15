@@ -5,7 +5,7 @@
 // can compose functions and functors
 // compose(f1, f2, f3)(x) <=> f3(f2(f1(x)))
 
-// Copyright (c) 2012, Bureau 14
+// Copyright (c) 2013, Bureau 14
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 
 // History
 //
+// EA - Added include for direct support of std::pair by fusion 
 // EA - Switched to boost::result_of, although less elaguant it seems decltype
 //      puts too much stress on the template resolution engine and most compilers
 //      eventually fail at some complexity level. Also added an overloaded const
@@ -69,6 +70,8 @@
 #include <boost/fusion/include/back.hpp>
 #include <boost/fusion/adapted/boost_tuple.hpp>
 #include <boost/fusion/include/boost_tuple.hpp>
+#include <boost/fusion/support/pair.hpp>
+#include <boost/fusion/include/pair.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/include/mpl.hpp>
 
@@ -85,7 +88,7 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/repeat_from_to.hpp>
 
-namespace wrpme
+namespace qdb
 {
 
     template <typename Inner, typename Outer>
@@ -116,7 +119,6 @@ namespace wrpme
         }
 
     public:
-
         // this kind of declaration
         //
         // template <typename T>
@@ -215,24 +217,24 @@ namespace wrpme
 // (actually for a better effect as we will preserve perfect forwarding easily)
 // it has to be noted that you will lose two points of humanity if you ever understand how this macro works
 
-#define WRPME_DETAIL_FORWARD_SINGLE(n) std::forward<Function##n>(f##n)
-#define WRPME_DETAIL_FORWARD_SINGLE_COMMA(z, n, _) ,WRPME_DETAIL_FORWARD_SINGLE(n) 
+#define QDB_DETAIL_FORWARD_SINGLE(n) std::forward<Function##n>(f##n)
+#define QDB_DETAIL_FORWARD_SINGLE_COMMA(z, n, _) ,QDB_DETAIL_FORWARD_SINGLE(n) 
 
-#define WRPME_DETAIL_COMPOSE_FUNCTION(z, n, _) \
+#define QDB_DETAIL_COMPOSE_FUNCTION(z, n, _) \
     template<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), typename Function)> \
     typename make_composed<typename boost::mpl::vector<BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), Function)> >::type \
     compose(BOOST_PP_ENUM_BINARY_PARAMS_Z(z, BOOST_PP_INC(n), Function, && f)) \
     { \
-    return compose(compose(WRPME_DETAIL_FORWARD_SINGLE(0) BOOST_PP_REPEAT_FROM_TO(1, n, WRPME_DETAIL_FORWARD_SINGLE_COMMA, nil)), \
-                   WRPME_DETAIL_FORWARD_SINGLE(n)); \
+    return compose(compose(QDB_DETAIL_FORWARD_SINGLE(0) BOOST_PP_REPEAT_FROM_TO(1, n, QDB_DETAIL_FORWARD_SINGLE_COMMA, nil)), \
+                   QDB_DETAIL_FORWARD_SINGLE(n)); \
     }
 
 // If you need more than BOOST_MPL_LIMIT_VECTOR_SIZE parameters you and I should have a serious conversation
 // by default BOOST_MPL_LIMIT_VECTOR_SIZE is 20...
-BOOST_PP_REPEAT_FROM_TO(2, BOOST_MPL_LIMIT_VECTOR_SIZE, WRPME_DETAIL_COMPOSE_FUNCTION, nil)
+BOOST_PP_REPEAT_FROM_TO(2, BOOST_MPL_LIMIT_VECTOR_SIZE, QDB_DETAIL_COMPOSE_FUNCTION, nil)
 
-#undef WRPME_DETAIL_FORWARD_SINGLE
-#undef WRPME_DETAIL_FORWARD_SINGLE_COMMA
-#undef WRPME_DETAIL_COMPOSE_FUNCTION
+#undef QDB_DETAIL_FORWARD_SINGLE
+#undef QDB_DETAIL_FORWARD_SINGLE_COMMA
+#undef QDB_DETAIL_COMPOSE_FUNCTION
 
 }

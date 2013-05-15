@@ -6,7 +6,7 @@ Open source libraries by [Bureau 14](http://www.bureau14.fr).
 License
 -------
 
-Copyright (c) 2012, Bureau 14 All rights reserved.
+Copyright (c) 2012-2013, Bureau 14 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -167,5 +167,52 @@ There is no performance penalty when functions/functors can be inlined.
 Limitations
 -----------
 
-This library only supports composition up to [BOOST_MPL_LIMIT_VECTOR_SIZE](http://www.boost.org/doc/libs/1_52_0/libs/mpl/doc/refmanual/limit-vector-size.html) functions. Rvalue references are not fully supported via the container interface. Standard tuples support requires variadic templates support by the compiler. Boost tuples don't suffer this limitation.
+This library only supports composition up to [BOOST_MPL_LIMIT_VECTOR_SIZE](http://www.boost.org/doc/libs/1_53_0/libs/mpl/doc/refmanual/limit-vector-size.html) functions. Rvalue references are not fully supported via the container interface. Standard tuples support requires variadic templates support by the compiler. Boost tuples don't suffer this limitation.
 
+Stringify
+=========
+
+Purpose
+-------
+
+Stringify is high performance string to int and int to string conversion library.
+
+Requirements
+------------
+
+This library is header-only and written in [cpp11](http://en.wikipedia.org/wiki/C%2B%2B11). It uses the following cpp11 features:
+
+ * [Static assertions](http://en.wikipedia.org/wiki/Rvalue_references#Static_assertions)
+
+It makes intensive usage of the Boost libraries, especially [Boost.Spirit](http://www.boost.org/doc/libs/1_53_0/libs/spirit/doc/html/index.html).
+
+It has been tested against [MSVC](http://msdn.microsoft.com/fr-fr/vstudio/hh388567.aspx) 11, [clang](http://clang.llvm.org/) 3.1 and [gcc](http://gcc.gnu.org/) 4.6.
+
+Introductory example
+--------------------
+
+```cpp
+const std::string str_int = "123";
+int v = 0;
+
+boost::system::error_code ec = int_from_string(str_int, v);
+assert(!ec);
+assert(v == 123);
+
+assert(int_to_string(v) == str_int);
+```
+
+Usage
+-----
+
+Once can use either function ton convert from a std::string to any integer (signed or unsigned) and vice-versa. The conversion is 10 based.
+
+Performance
+-----------
+
+Thanks to Boost.Spirit conversion performance is excellent, outperforming C libraries such as sprintf and scanf.
+
+Limitations
+-----------
+
+Compilation time may rise.
